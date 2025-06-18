@@ -1,13 +1,22 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from './LoadingSpinner';
 
 const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { loading, isAuthenticated } = useAuth();
 
-  if (loading) return <LoadingSpinner />;
-  return user ? children : <Navigate to="/login" />;
+  // Show loading spinner while authentication is being determined
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  // Check if user is properly authenticated (both Firebase and backend)
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 };
 
 export default PrivateRoute;
